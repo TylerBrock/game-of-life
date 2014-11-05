@@ -6,7 +6,7 @@
 
 typedef std::unique_ptr<uint32_t[]> cells;
 
-const int SCALE = 10;
+const int SCALE = 25;
 const int WIDTH = 30;
 const int HEIGHT = 30;
 const int BOARD_SIZE = WIDTH * HEIGHT;
