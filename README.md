@@ -1,4 +1,4 @@
-game_of_life
+Game Of Life
 ============
 
 C++ / SDL2 version of Conway's Game of Life
