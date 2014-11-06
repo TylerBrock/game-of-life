@@ -1,12 +1,12 @@
+#include <cstdint>
 #include <iostream>
 #include <memory>
-#include <cstdint>
 
 #include "SDL2/SDL.h"
 
 typedef std::unique_ptr<uint32_t[]> cells;
 
-const int SCALE = 25;
+const int SCALE = 20;
 const int WIDTH = 30;
 const int HEIGHT = 30;
 const int BOARD_SIZE = WIDTH * HEIGHT;
@@ -87,7 +87,7 @@ void tick(cells& current_generation, cells& next_generation) {
         for (int x=0; x<WIDTH; x++) {
             uint32_t current_cell = current_generation[y * WIDTH + x];
             int live_neighbors = neighbors(current_generation, x, y);
-            if (current_cell && !((live_neighbors == 2) || (live_neighbors == 3))) {
+            if (current_cell && !(live_neighbors == 2 || live_neighbors == 3)) {
                 next_generation[y * WIDTH + x] = OFF;
             }
             if (!current_cell && live_neighbors == 3) {
