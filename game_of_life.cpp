@@ -26,7 +26,7 @@ void log(const std::string& message) {
     std::cout << "[game_of_life] " << message << std::endl;
 }
 
-uint32_t get_cell(cells& generation, int x, int y) {
+uint32_t get_cell(const cells& generation, int x, int y) {
     return generation[y * WIDTH + x];
 }
 
@@ -34,7 +34,15 @@ void set_cell(cells& generation, int x, int y, uint32_t value) {
     generation[y * WIDTH + x] = value;
 }
 
-size_t neighbors(cells& current_generation, int x, int y) {
+void draw(cells& current_generation, int x, int y) {
+    int scaled_x = x/SCALE;
+    int scaled_y = y/SCALE;
+    uint32_t cell_value = get_cell(current_generation, scaled_x, scaled_y);
+    uint32_t next_state = cell_value ? OFF : ON;
+    set_cell(current_generation, scaled_x, scaled_y, next_state);
+}
+
+size_t neighbors(const cells& current_generation, int x, int y) {
     size_t count = 0;
 
     // Check cell on the right
@@ -131,24 +139,29 @@ int main(int argc, char* argv[]) {
     memset(next_generation.get(), 0, BOARD_SIZE_BYTES);
 
     bool quit = false;
+    bool drawing = false;
+
     SDL_Event event;
 
-    while(!quit) {
-        SDL_UpdateTexture(texture, NULL, current_generation.get(), WIDTH * sizeof(uint32_t));
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
-
+    while (!quit) {
         SDL_WaitEvent(&event);
-        switch(event.type) {
-            case SDL_MOUSEBUTTONDOWN: {
-                int scaled_x = event.button.x/SCALE;
-                int scaled_y = event.button.y/SCALE;
-                uint32_t cell = get_cell(current_generation, scaled_x, scaled_y);
-                uint32_t next_state = cell ? OFF : ON;
-                set_cell(current_generation, scaled_x, scaled_y, next_state);
+
+        switch (event.type) {
+            case SDL_MOUSEBUTTONDOWN:
+                draw(current_generation, event.button.x, event.button.y);
+                drawing = true;
                 break;
-            }
+            case SDL_MOUSEMOTION:
+                if (event.motion.state & SDL_BUTTON(1)) {
+                    draw(current_generation, event.motion.x, event.motion.y);
+                    drawing = true;
+                }
+                break;
+            case SDL_MOUSEBUTTONUP:
+                drawing = false;
+                break;
+            case SDL_FINGERMOTION:
+                break;
             case SDL_QUIT:
                 quit = true;
                 break;
@@ -159,7 +172,21 @@ int main(int argc, char* argv[]) {
                     log("computing next generation");
                     tick(current_generation, next_generation);
                 }
+                drawing = true;
                 break;
+            case SDL_KEYUP:
+                drawing = false;
+                break;
+            default:
+                break;
+        }
+
+        if (drawing) {
+            SDL_UpdateTexture(texture, NULL, current_generation.get(), WIDTH * sizeof(uint32_t));
+            SDL_RenderClear(renderer);
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
+            SDL_RenderPresent(renderer);
+            drawing = false;
         }
     }
 
