@@ -7,4 +7,4 @@ C++ / SDL2 version of Conway's Game of Life
  - Advance the simulation by pressing or holding down the space bar.
  - Type "q" to quit.
 
-Tested on Mac OSX 10.10.0
+Tested on Mac OSX 10.10.0 (Yosemite) and Arch Linux w/ GCC 4.9.0
